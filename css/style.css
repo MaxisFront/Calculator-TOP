@@ -10,10 +10,21 @@ body {
     color: white;
 }
 
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
 .header__title {
     margin-top: 2%;
     font-size: 2rem;
     text-align: center;
+}
+
+.header__description{
+  text-align: center;
 }
 
 .body__content {
@@ -22,4 +33,165 @@ body {
   align-items: center;
   margin-top: 2rem;
   gap: 0.5rem;
+}
+
+/* Calculator: Base */
+
+.calculator {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  font-size: 1.2rem;
+}
+
+.calculator__controls {
+  display: flex;
+  flex-direction: column;
+  min-height: 40%;
+  min-width: 20%;
+  max-width: 23rem;
+  gap: 0.5rem;
+  border: 1px solid #ffffff;
+  border-radius: 16px;
+}
+
+/* Calculator: Display */
+
+.calculator__display {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1.2rem;
+  border: 2px solid #ffffff;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.calculator__output:hover, .calculator__output--main:hover {
+  background-color: #362F2F;
+  transition-duration: 0.2s;
+}
+
+.calculator__output {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  border-bottom: 1px dashed #ffffff;
+}
+
+.calculator__output--main {
+  display: flex;
+  justify-content: start;
+  padding-top: 0.2rem;
+}
+
+.calculator__operations {
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  text-overflow: ellipsis;
+}
+
+.calculator__equal-symbol {
+  flex-basis: 7%;
+  flex-shrink: 0;
+}
+
+.calculator__result {
+  flex-basis: 40%;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+
+/* Calculator: Keypad section */
+
+.calculator__keypad {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 2px solid #E6E6E6;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.calculator__row {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.calculator__key--num {
+  background-color: #424242;
+}
+
+.calculator__key--num:hover {
+  background-color: #525252;
+}
+
+.calculator__key--num:active {
+  background-color: #383838;
+}
+
+.calculator__key--action {
+  background-color: #363636;
+}
+
+.calculator__key--action:hover {
+  background-color: #4A4A4A;
+}
+
+.calculator__key--action:active {
+  background-color: #262525;
+}
+
+.calculator__key--operator {
+  background-color: #6B2336;
+}
+
+.calculator__key--operator:hover {
+  background-color: #78263C;
+}
+
+.calculator__key--operator:active {
+  background-color: #4F1928;
+}
+
+.calculator__key--result {
+  background-color: #9C0037;
+}
+
+.calculator__key--result:hover {
+  background-color: #AB003C;
+}
+
+.calculator__key--result:active {
+  background-color: #750029;
+}
+
+button {
+  width: 3.5rem;
+  height: 3.5rem;
+  cursor: pointer;
+  transition-duration: 0.2s;
+  font-family: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+}
+
+button:hover {
+  background-color: #ffffff;
+  transform: scale(1.035);
+}
+
+button:active {
+  background-color: #bbbbbb;
+  transform: scale(0.95);
 }
