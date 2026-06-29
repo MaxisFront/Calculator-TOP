@@ -60,6 +60,8 @@ body {
 .calculator__display {
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
+  min-height: 15.8rem;
   padding: 1rem;
   gap: 1.2rem;
   border: 2px solid #ffffff;
@@ -82,7 +84,9 @@ body {
 .calculator__output--main {
   display: flex;
   justify-content: start;
-  padding-top: 0.2rem;
+  align-items: end;
+  min-height: 1.4rem;
+  /*padding-top: 0.2rem;*/
 }
 
 .calculator__operations {
