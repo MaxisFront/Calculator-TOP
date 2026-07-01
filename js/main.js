@@ -79,7 +79,8 @@
     element.addEventListener("click", () => {
       switch (element.dataset.key) {
         case "del":
-          deleteLastChar();
+          if (displayingResult) cleanMainOutput();
+          else deleteLastChar();
           break;
         case "ac":
           cleanDisplay();
@@ -249,6 +250,7 @@
   }
 
   function deleteLastChar() {
+
     if (mainDisplayText && mainDisplayText.textContent !== "") {
       mainDisplayText.textContent = mainDisplayText.textContent.slice(0, -1);
     }
