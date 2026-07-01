@@ -80,6 +80,7 @@
     
     const allowedValues = /^[0-9×÷+.\-]+$/;
 
+    // TODO: Return error when 2 operators displayed together
     if (!allowedValues.test(mainDisplayText.textContent)) {
       mainDisplayText.textContent = "Expression not allowed";
       return;
@@ -97,30 +98,45 @@
     let input = cleanInput;
     let result = "";
 
-    while (input.length > 1) {
+    while (input.includes("×") || input.includes("÷")) {
+  
+      let productIndex = input.indexOf("×");
+      let divisionIndex = input.indexOf("÷");
 
-      const productIndex = input.indexOf("×");
-      const divisionIndex = input.indexOf("÷");
+      const nextProduct = productIndex !== -1 ? productIndex : Infinity;
+      const nextDivision = divisionIndex !== -1 ? divisionIndex : Infinity;
 
-      if (productIndex !== -1 || divisionIndex !== -1) { 
+      if (nextProduct < nextDivision) {
+        result = doOperation("product", input[nextProduct - 1], input[nextProduct + 1]);
+        input.splice(nextProduct - 1, 3, String(result));
 
-        const nextProduct = productIndex !== -1 ? productIndex : Infinity;
-        const nextDivision = divisionIndex !== -1 ? divisionIndex : Infinity;
-      
-        if (nextProduct <= nextDivision) {
+      } else if (nextDivision < nextProduct) {
 
-          alert(divisionIndex);
-          alert(productIndex);
-          result = obtainProduct(input[nextProduct - 1], input[nextProduct + 1]);
-          input.splice(nextProduct - 1, 3, String(result));
+        result = doOperation("quotient", input[nextDivision - 1], input[nextDivision + 1]);
+        input.splice(nextDivision - 1, 3, String(result));
+      }  
+    }
 
-        } else if (nextDivision < nextProduct) {
+    while (input.includes("+") || input.includes("-")) {
 
-          alert("huh");
-          result = obtainQuotient(input[nextDivision - 1], input[nextDivision + 1]);
-          input.splice(divisionIndex - 1, 3, String(result));
-        }
-      }
+      let additionIndex = input.indexOf("+");
+      let subtractionIndex = input.indexOf("-");
+
+      const nextAddition = additionIndex !== -1 ? additionIndex : Infinity;
+      const nextSubtraction = subtractionIndex !== -1 ? subtractionIndex : Infinity;
+
+
+      if (nextAddition < nextSubtraction) {
+        result = doOperation("addition", input[nextAddition - 1], input[nextAddition + 1]);
+        input.splice(nextAddition - 1, 3, String(result));
+
+      } else if (nextSubtraction < nextAddition) {
+
+        result = doOperation("subtraction", input[nextSubtraction - 1], input[nextSubtraction + 1]);
+        input.splice(nextSubtraction - 1, 3, String(result));
+      }  
+
+
     }
 
     // TODO: Add Addition and subtraction logic
@@ -130,18 +146,24 @@
     return input[0];
   }
 
-  /** @param {string} firstValue
+  /** @param {string} operationToDo 
+   * @param {string} firstValue
    * @param {string} secondValue 
   */
-  function obtainProduct(firstValue, secondValue) {
-    return String((Number(firstValue)) * (Number(secondValue)));
-  }
-
-  /** @param {string} firstValue
-   * @param {string} secondValue 
-  */
-  function obtainQuotient(firstValue, secondValue) {
-    return String((Number(firstValue)) / (Number(secondValue)));
+  function doOperation(operationToDo, firstValue, secondValue) {
+    
+    switch(operationToDo) {
+      case "addition": 
+        return String((Number(firstValue)) + (Number(secondValue)));
+      case "subtraction": 
+        return String((Number(firstValue)) - (Number(secondValue)));
+      case "product": 
+        return String((Number(firstValue)) * (Number(secondValue)));
+      case "quotient": 
+        return String((Number(firstValue)) / (Number(secondValue)));
+      default:
+        return;
+    }
   }
 
   /** @param {string} operation 
