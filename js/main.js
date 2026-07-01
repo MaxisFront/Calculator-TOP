@@ -12,8 +12,9 @@
   /** @type {NodeListOf<HTMLElement>} */
   const resultSpans = document.querySelectorAll(".calculator__result");
   /** @type {NodeListOf<HTMLElement>} */
-  const keypadValues = document.querySelectorAll
-  (".calculator__key--num, .calculator__key--operator");
+  const keypadNumbers = document.querySelectorAll(".calculator__key--num");
+  /** @type {NodeListOf<HTMLElement>} */
+  const keypadOperators = document.querySelectorAll(".calculator__key--operator");
   /** @type {NodeListOf<HTMLElement>} */
   const keypadActions = document.querySelectorAll(".calculator__key--action");
 
@@ -21,19 +22,55 @@
   /** @type {HTMLElement | null} */
   const mainDisplayText = document.querySelector('[data-result="main"]');
   
+  // Global Variables
+  let lastResult = "";
+  let lastOperations = "";
+  let displayingResult = false;
 
 
 
   // keys Functionality
 
-  keypadValues.forEach(element => {
+  keypadNumbers.forEach(element => {
     element.addEventListener("click", () => {
       
-      if (mainDisplayText) mainDisplayText.textContent += element.dataset.key;
-      if (mainOutputDiv && mainOutputDiv.style.display === "none") mainOutputDiv.style.display = "block";
+      if (!mainOutputDiv || !mainDisplayText) return;
+      if (displayingResult) {
+        cleanMainOutput();
+        setWhiteColorText();
+      }
 
+      if (mainOutputDiv.style.visibility === "hidden") {
+        mainOutputDiv.style.visibility = "visible";
+        displayingResult = false;
+      } 
+
+      mainDisplayText.textContent += element.dataset.key;
     });
   });
+
+  keypadOperators.forEach((element => {
+    element.addEventListener("click", () => {
+
+      if (!mainOutputDiv || !mainDisplayText) return;
+
+      if (!isFinite(Number(mainDisplayText.textContent)) && displayingResult) {
+        cleanMainOutput()
+        setWhiteColorText();
+        return;
+      }
+
+      if (mainDisplayText.textContent === "") return;
+
+      if (!displayingResult) {
+         mainDisplayText.textContent += element.dataset.key;
+      } else {
+        mainDisplayText.textContent = `${lastResult}${element.dataset.key}`;
+        displayingResult = false;
+      }
+
+    });
+  }));
 
 
   // Core functionalities
@@ -67,10 +104,18 @@
   function getResult() {
 
     let input = getInput();
-    if (!input || input?.length <= 2) return;
+    if (!mainDisplayText || !input || input?.length <= 2) return;
     
     const result = calculateResult(input);
-    alert(result);
+    if (result === "ERROR") {
+      setResultNotAllowed();
+      return;
+    }
+
+    mainDisplayText.textContent = result;
+
+    lastResult = result;
+    setDisplayingResultTrue();
   }
 
   function getInput() {
@@ -80,7 +125,7 @@
 
     // TODO: Return error when 2 operators displayed together
     if (!allowedValues.test(mainDisplayText.textContent)) {
-      mainDisplayText.textContent = "Expression not allowed";
+      setResultNotAllowed();
       return;
     }
 
@@ -108,11 +153,16 @@
         result = doOperation("product", input[nextProduct - 1], input[nextProduct + 1]);
         input.splice(nextProduct - 1, 3, String(result));
 
-      } else if (nextDivision < nextProduct) {
+      } else{
 
         result = doOperation("quotient", input[nextDivision - 1], input[nextDivision + 1]);
         input.splice(nextDivision - 1, 3, String(result));
-      }  
+      }
+
+
+      if (mainDisplayText && result === "ERROR") {
+        return "ERROR";
+      }
     }
 
     while (input.includes("+") || input.includes("-")) {
@@ -132,9 +182,12 @@
 
         result = doOperation("subtraction", input[nextSubtraction - 1], input[nextSubtraction + 1]);
         input.splice(nextSubtraction - 1, 3, String(result));
-      }  
+      }
 
 
+      if (mainDisplayText && result === "ERROR") {
+        return "ERROR";
+      }
     }
 
     // TODO: Add Addition and subtraction logic
@@ -145,20 +198,25 @@
   }
 
   /** @param {string} operationToDo 
-   * @param {string} firstValue
-   * @param {string} secondValue 
+   * @param {string} firstVal
+   * @param {string} secondVal 
   */
-  function doOperation(operationToDo, firstValue, secondValue) {
-    
+  function doOperation(operationToDo, firstVal, secondVal) {
+
+    if (firstVal.split(".").length > 2 || secondVal.split(".").length > 2){
+      return "ERROR";
+    }
+
     switch(operationToDo) {
       case "addition": 
-        return String((Number(firstValue)) + (Number(secondValue)));
+        return String((Number(firstVal)) + (Number(secondVal)));
       case "subtraction": 
-        return String((Number(firstValue)) - (Number(secondValue)));
+        return String((Number(firstVal)) - (Number(secondVal)));
       case "product": 
-        return String((Number(firstValue)) * (Number(secondValue)));
+        return String((Number(firstVal)) * (Number(secondVal)));
       case "quotient": 
-        return String((Number(firstValue)) / (Number(secondValue)));
+        if (secondVal === "0") return "ERROR";
+        return String((Number(firstVal)) / (Number(secondVal)));
       default:
         return;
     }
@@ -171,8 +229,6 @@
     // TODO: Save the operation and the result, and display in the operations history
   }
 
-
-
   // Clen Functions
   function cleanDisplay() {
     cleanOutputs();
@@ -182,12 +238,12 @@
   function cleanOutputs() {
 
     operationSpans.forEach(element => element.textContent = "");
-    outputDivs.forEach((element) => element.style.display = "none");
+    outputDivs.forEach((element) => element.style.visibility = "hidden");
   }
 
   function cleanMainOutput() {
     if (mainDisplayText && mainOutputDiv) {
-      mainOutputDiv.style.display = "none";
+      mainOutputDiv.style.visibility = "hidden";
       mainDisplayText.textContent = "";
     }
   }
@@ -197,6 +253,28 @@
       mainDisplayText.textContent = mainDisplayText.textContent.slice(0, -1);
     }
   }
+
+  function setDisplayingResultTrue() {
+    displayingResult = true;
+  }
+
+  function setResultNotAllowed() {
+    if (mainDisplayText) {
+      mainDisplayText.textContent = "Expression not allowed";
+      mainDisplayText.style.color = "#AB003C";
+      mainDisplayText.style.fontWeight = "600";
+      displayingResult = true;
+    }
+  }
+
+  function setWhiteColorText() {
+
+    if (mainDisplayText) {
+      displayingResult = false;
+      mainDisplayText.style = "#ffffff";
+      mainDisplayText.style.fontWeight = "400";
+    }
+  }
   
   
   // TODO: when add an operation and result to the oldOutputs, apply a for loop;
@@ -204,6 +282,5 @@
   // and display it
   
   cleanDisplay();
-  
 
 })();
