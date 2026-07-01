@@ -2,10 +2,6 @@
 
 ( () => {
 
-  // Global Values;
-  let resultsToDisplay = -1;
-  let calculatorInput;
-
   // NodeLists
   /** @type {NodeListOf<HTMLElement>} */
   const outputDivs = document.querySelectorAll(".calculator__output");
@@ -25,7 +21,6 @@
   /** @type {HTMLElement | null} */
   const mainDisplayText = document.querySelector('[data-result="main"]');
   
-  // Core functionalities
 
 
 
@@ -40,11 +35,14 @@
     });
   });
 
+
+  // Core functionalities
+
   keypadActions.forEach(element => {
     element.addEventListener("click", () => {
       switch (element.dataset.key) {
         case "del":
-          alert(element.dataset.key);
+          deleteLastChar();
           break;
         case "ac":
           cleanDisplay();
@@ -191,6 +189,12 @@
     if (mainDisplayText && mainOutputDiv) {
       mainOutputDiv.style.display = "none";
       mainDisplayText.textContent = "";
+    }
+  }
+
+  function deleteLastChar() {
+    if (mainDisplayText && mainDisplayText.textContent !== "") {
+      mainDisplayText.textContent = mainDisplayText.textContent.slice(0, -1);
     }
   }
   
