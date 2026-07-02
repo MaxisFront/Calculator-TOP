@@ -3,14 +3,14 @@
 ( () => {
 
   // NodeLists
-  /** @type {NodeListOf<HTMLElement>} */
-  const outputDivs = document.querySelectorAll(".calculator__output");
   /** @type {HTMLElement | null} */
   const mainOutputDiv = document.querySelector(".calculator__output--main");
-  /** @type {NodeListOf<HTMLElement>} */
-  const operationSpans = document.querySelectorAll(".calculator__operations");
-  /** @type {NodeListOf<HTMLElement>} */
-  const resultSpans = document.querySelectorAll(".calculator__result");
+  /** @type {HTMLElement[]} */
+  const outputDivs = Array.from(document.querySelectorAll(".calculator__output"));
+  /** @type {HTMLElement[]} */
+  const operationSpans = Array.from(document.querySelectorAll(".calculator__operations"));
+  /** @type {HTMLElement[]} */
+  const resultSpans = Array.from(document.querySelectorAll(".calculator__result"));
   /** @type {NodeListOf<HTMLElement>} */
   const keypadNumbers = document.querySelectorAll(".calculator__key--num");
   /** @type {NodeListOf<HTMLElement>} */
@@ -104,19 +104,20 @@
   // Calculate Functions
   function getResult() {
 
-    let input = getInput();
-    if (!mainDisplayText || !input || input?.length <= 2) return;
+    let userInput = getInput();
+    if (!mainDisplayText || !userInput || userInput?.length <= 2) return;
     
-    const result = calculateResult(input);
+    const operations = userInput.join("");
+    const result = calculateResult(userInput);
     if (result === "ERROR") {
       setResultNotAllowed();
       return;
     }
 
     mainDisplayText.textContent = result;
-
-    lastResult = result;
     setDisplayingResultTrue();
+
+    saveResultAtHistory(operations, result);
   }
 
   function getInput() {
@@ -226,8 +227,24 @@
   /** @param {string} operation 
    * @param {string} result
   */
-  function saveOperation(operation, result) {
+  function saveResultAtHistory(operation, result) {
     // TODO: Save the operation and the result, and display in the operations history
+    
+    lastResult = result;
+    lastOperations = operation;
+    
+    for (let i = 0; i < outputDivs.length - 1; i++) {
+      if (outputDivs[i].style.visibility === "hidden") {
+        operationSpans[i].textContent = lastOperations;
+        resultSpans[i].textContent = lastResult;
+        outputDivs[i].style.visibility = "visible";
+        return;
+      }
+    }
+
+    operationSpans[outputDivs.length - 1].textContent = lastOperations;
+    resultSpans[outputDivs.length - 1].textContent = lastResult;
+    outputDivs[outputDivs.length - 1].style.visibility = "visible";
   }
 
   // Clen Functions
@@ -239,6 +256,7 @@
   function cleanOutputs() {
 
     operationSpans.forEach(element => element.textContent = "");
+    resultSpans.forEach(element => element.textContent = "");
     outputDivs.forEach((element) => element.style.visibility = "hidden");
   }
 
@@ -284,5 +302,4 @@
   // and display it
   
   cleanDisplay();
-
 })();
