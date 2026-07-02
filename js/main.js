@@ -48,6 +48,7 @@
         displayingResult = false;
       } 
 
+      setWhiteColorText();
       mainDisplayText.textContent += element.dataset.key;
     });
   });
@@ -64,6 +65,16 @@
       }
 
       if (mainDisplayText.textContent === "" && element.dataset.key !== "-") return;
+
+      setWhiteColorText();
+      const currentInput = mainDisplayText.textContent;
+      const lastOperator = currentInput.slice(-1);
+
+      if (["+", "-", "×", "÷"].includes(lastOperator)) {
+        mainDisplayText.textContent = currentInput.slice(0, -1) + 
+          element.dataset.key;
+        return;
+      }
 
       if (mainOutputDiv.style.visibility === "hidden") {
         mainOutputDiv.style.visibility = "visible";  
@@ -93,11 +104,8 @@
         case "ac":
           cleanDisplay();
           break;
-        case "lol":
-          alert(element.dataset.key);
-          break;
         case "ans":
-          alert(element.dataset.key);
+          recoverLastResult();
           break;
         case "calculate":
           getResult();
@@ -134,7 +142,6 @@
     
     const allowedValues = /^[0-9×÷+.\-]+$/;
 
-    // TODO: Return error when 2 operators displayed together
     if (!allowedValues.test(mainDisplayText.textContent)) {
       setResultNotAllowed();
       return;
@@ -201,10 +208,6 @@
       }
     }
 
-    // TODO: Add Addition and subtraction logic
-    // TODO: Display the "result" value at the display
-    // TODO: Add logic for the result history 
-
     return input[0];
   }
 
@@ -218,32 +221,40 @@
       return "ERROR";
     }
 
+    let num1 = Number(firstVal);
+    let num2 = Number(secondVal);
+    let result;
+
     switch(operationToDo) {
       case "addition": 
-        return String((Number(firstVal)) + (Number(secondVal)));
-      case "subtraction": 
-        return String((Number(firstVal)) - (Number(secondVal)));
+        result = num1 + num2;
+        break;
+      case "subtraction":  
+        result = num1 - num2;
+        break;
       case "product": 
-        return String((Number(firstVal)) * (Number(secondVal)));
+        result = num1 * num2;
+        break;
       case "quotient": 
         if (secondVal === "0") return "ERROR";
-        return String((Number(firstVal)) / (Number(secondVal)));
+        result = num1 / num2;
+        break;
       default:
-        return;
+        return "ERROR";
     }
+
+    return String(Number(result.toFixed(10)))
   }
 
   /** @param {string} operation 
    * @param {string} result
   */
   function saveResultAtHistory(operation, result) {
-    // TODO: Save the operation and the result, and display in the operations history
     
     oldResults.push(result);
     oldOperations.push(operation);
 
     if (oldResults.length > resultSpans.length) {
-      alert(oldResults);
       oldResults.shift();
     } 
     if (oldOperations.length > operationSpans.length) oldOperations.shift();
@@ -254,6 +265,13 @@
       resultSpans[index].textContent = oldResults[index];
       element.style.visibility = "visible";
     })
+  }
+
+  function recoverLastResult() {
+    if (!mainOutputDiv || !mainDisplayText || lastResult === "") return;
+
+    mainDisplayText.textContent += lastResult;
+
   }
 
   // Clen Functions
@@ -304,15 +322,10 @@
 
     if (mainDisplayText) {
       displayingResult = false;
-      mainDisplayText.style = "#ffffff";
+      mainDisplayText.style.color = "#ffffff";
       mainDisplayText.style.fontWeight = "400";
     }
   }
-  
-  
-  // TODO: when add an operation and result to the oldOutputs, apply a for loop;
-  // to check if the [i] element constains a value. If not, add the values 
-  // and display it
-  
+
   cleanDisplay();
 })();
