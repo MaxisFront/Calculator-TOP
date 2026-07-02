@@ -24,7 +24,10 @@
   
   // Global Variables
   let lastResult = "";
-  let lastOperations = "";
+  /** @type {string[]} */
+  let oldOperations = [];
+  /** @type {string[]} */
+  let oldResults = [];
   let displayingResult = false;
 
 
@@ -60,15 +63,20 @@
         return;
       }
 
-      if (mainDisplayText.textContent === "") return;
+      if (mainDisplayText.textContent === "" && element.dataset.key !== "-") return;
 
-      if (!displayingResult) {
-         mainDisplayText.textContent += element.dataset.key;
-      } else {
-        mainDisplayText.textContent = `${lastResult}${element.dataset.key}`;
-        displayingResult = false;
+      if (mainOutputDiv.style.visibility === "hidden") {
+        mainOutputDiv.style.visibility = "visible";  
       }
 
+      if (!displayingResult) {
+        mainDisplayText.textContent += element.dataset.key;
+        return;
+      }
+
+      mainDisplayText.textContent = `${lastResult}${element.dataset.key}`;
+      displayingResult = false; 
+      
     });
   }));
 
@@ -109,7 +117,7 @@
     
     const operations = userInput.join("");
     const result = calculateResult(userInput);
-    if (result === "ERROR") {
+    if (result === "ERROR" || result === "NaN") {
       setResultNotAllowed();
       return;
     }
@@ -117,6 +125,7 @@
     mainDisplayText.textContent = result;
     setDisplayingResultTrue();
 
+    lastResult = result;
     saveResultAtHistory(operations, result);
   }
 
@@ -180,7 +189,7 @@
         result = doOperation("addition", input[nextAddition - 1], input[nextAddition + 1]);
         input.splice(nextAddition - 1, 3, String(result));
 
-      } else if (nextSubtraction < nextAddition) {
+      } else {
 
         result = doOperation("subtraction", input[nextSubtraction - 1], input[nextSubtraction + 1]);
         input.splice(nextSubtraction - 1, 3, String(result));
@@ -230,21 +239,21 @@
   function saveResultAtHistory(operation, result) {
     // TODO: Save the operation and the result, and display in the operations history
     
-    lastResult = result;
-    lastOperations = operation;
-    
-    for (let i = 0; i < outputDivs.length - 1; i++) {
-      if (outputDivs[i].style.visibility === "hidden") {
-        operationSpans[i].textContent = lastOperations;
-        resultSpans[i].textContent = lastResult;
-        outputDivs[i].style.visibility = "visible";
-        return;
-      }
-    }
+    oldResults.push(result);
+    oldOperations.push(operation);
 
-    operationSpans[outputDivs.length - 1].textContent = lastOperations;
-    resultSpans[outputDivs.length - 1].textContent = lastResult;
-    outputDivs[outputDivs.length - 1].style.visibility = "visible";
+    if (oldResults.length > resultSpans.length) {
+      alert(oldResults);
+      oldResults.shift();
+    } 
+    if (oldOperations.length > operationSpans.length) oldOperations.shift();
+
+    outputDivs.forEach((element, index) => {
+      if (!oldOperations[index] || !oldResults[index]) return;
+      operationSpans[index].textContent = oldOperations[index];
+      resultSpans[index].textContent = oldResults[index];
+      element.style.visibility = "visible";
+    })
   }
 
   // Clen Functions
@@ -258,12 +267,16 @@
     operationSpans.forEach(element => element.textContent = "");
     resultSpans.forEach(element => element.textContent = "");
     outputDivs.forEach((element) => element.style.visibility = "hidden");
+    oldOperations.length = 0;
+    oldResults.length = 0;
+    displayingResult = false;
   }
 
   function cleanMainOutput() {
     if (mainDisplayText && mainOutputDiv) {
       mainOutputDiv.style.visibility = "hidden";
       mainDisplayText.textContent = "";
+      displayingResult = false;
     }
   }
 
