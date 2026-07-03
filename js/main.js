@@ -22,6 +22,21 @@
   /** @type {HTMLElement | null} */
   const mainDisplayText = document.querySelector('[data-result="main"]');
   
+  /** @type {Object.<string, string>} */
+  const keyboardMap = {
+    "0": "0", "1": "1", "2": "2", "3": "3", "4": "4",
+    "5": "5", "6": "6", "7": "7", "8": "8", "9": "9",
+    ".": ".",
+    "+": "+",
+    "-": "-",
+    "*": "×", "x": "×", "X": "×",
+    "/": "÷",
+    "Enter": "calculate",
+    "=": "calculate",
+    "Backspace": "del",
+    "Delete": "ac",
+  };
+
   // Global Variables
   let lastResult = "";
   /** @type {string[]} */
@@ -29,7 +44,6 @@
   /** @type {string[]} */
   let oldResults = [];
   let displayingResult = false;
-
 
 
   // keys Functionality
@@ -91,6 +105,19 @@
     });
   }));
 
+  window.addEventListener("keydown", (event) => {
+    
+    const targetKey = keyboardMap[event.key];
+
+    /** @type {HTMLElement | null} */
+    let buttonToExecute = null;
+
+    if (targetKey) {
+      buttonToExecute = document.querySelector(`button[data-key="${targetKey}"]`);
+    }
+
+    if (buttonToExecute) buttonToExecute.click();
+  })
 
   // Core functionalities
 
@@ -246,6 +273,8 @@
     return String(Number(result.toFixed(10)))
   }
 
+  // Data storage
+
   /** @param {string} operation 
    * @param {string} result
   */
@@ -275,6 +304,7 @@
   }
 
   // Clen Functions
+
   function cleanDisplay() {
     cleanOutputs();
     cleanMainOutput();
