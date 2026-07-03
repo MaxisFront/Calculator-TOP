@@ -263,7 +263,7 @@
         result = num1 * num2;
         break;
       case "quotient": 
-        if (secondVal === "0") return "ERROR";
+        if (num2 === 0) return "ERROR";
         result = num1 / num2;
         break;
       default:
